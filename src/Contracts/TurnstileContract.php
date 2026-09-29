@@ -10,5 +10,5 @@ interface TurnstileContract
 {
     public function siteKey(): string;
 
-    public function verify(string $token, ?string $remoteIp = null): TurnstileResponse;
+    public function verify(string $token, ?string $remoteIp = null, ?string $idempotencyKey = null): TurnstileResponse;
 }
