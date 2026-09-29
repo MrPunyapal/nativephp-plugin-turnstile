@@ -26,7 +26,7 @@ final class Turnstile implements TurnstileContract
         return (string) $this->config->get('turnstile.site_key', '');
     }
 
-    public function verify(string $token, ?string $remoteIp = null): TurnstileResponse
+    public function verify(string $token, ?string $remoteIp = null, ?string $idempotencyKey = null): TurnstileResponse
     {
         if ($token === '') {
             throw new TurnstileException('A Turnstile token is required.');
@@ -42,6 +42,10 @@ final class Turnstile implements TurnstileContract
 
         if ($remoteIp !== null && $remoteIp !== '') {
             $data['remoteip'] = $remoteIp;
+        }
+
+        if ($idempotencyKey !== null && $idempotencyKey !== '') {
+            $data['idempotency_key'] = $idempotencyKey;
         }
 
         try {
