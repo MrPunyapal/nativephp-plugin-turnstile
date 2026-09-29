@@ -1,0 +1,20 @@
+# {{ plugin }}
+
+{{ description }}
+
+## Installation
+
+```bash
+composer require {{ vendor }}/{{ package }}
+```
+
+## NativePHP Manifest
+
+The plugin manifest is `nativephp.json`.
+
+## Bridge Functions
+
+`{{ plugin }}.{{ function }}` is implemented by:
+
+- Android: `com.{{ vendor }}.{{ package }}.{{ plugin }}Functions.{{ function }}`
+- iOS: `{{ plugin }}Functions.{{ function }}`

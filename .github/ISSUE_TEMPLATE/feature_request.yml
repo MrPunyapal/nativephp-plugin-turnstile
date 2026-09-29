@@ -1,0 +1,20 @@
+name: Feature request
+description: Propose an improvement for {{ vendor }}/{{ package }}
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe the user or developer problem.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Describe the change you would like.
+    validations:
+      required: true

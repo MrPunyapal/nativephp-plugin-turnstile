@@ -1,0 +1,18 @@
+# {{ vendor }}/{{ package }} - {{ plugin }} ignored files
+/vendor/
+/composer.lock
+/.phpunit.cache/
+/.phpstan/
+/coverage/
+/.pest.cache/
+/.rector.cache/
+/.idea/
+/.vscode/
+/.DS_Store
+Thumbs.db
+
+# Native build output created after {{ plugin }} is installed in an app.
+/android/.gradle/
+/android/build/
+/ios/.build/
+/ios/DerivedData/

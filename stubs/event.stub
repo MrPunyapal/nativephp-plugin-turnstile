@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }}\Events;
+
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+
+final class {{ event }}
+{
+    use Dispatchable;
+    use SerializesModels;
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function __construct(
+        public readonly array $payload = [],
+    ) {
+    }
+}

@@ -1,0 +1,16 @@
+# {{ vendor }}/{{ package }} - {{ plugin }} export and language rules
+* text=auto eol=lf
+
+*.php diff=php
+*.kt diff=kotlin
+*.swift diff=swift
+
+/tests export-ignore
+/.github export-ignore
+/.phpstan export-ignore
+/.phpunit.cache export-ignore
+/docs export-ignore
+/phpunit.xml export-ignore
+/pint.json export-ignore
+/rector.php export-ignore
+/phpstan.neon.dist export-ignore

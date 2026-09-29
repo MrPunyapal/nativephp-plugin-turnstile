@@ -1,0 +1,12 @@
+parameters:
+    level: 8
+    paths:
+        - src
+    tmpDir: .phpstan/cache
+    treatPhpDocTypesAsCertain: false
+
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+
+# Template: {{ vendor }}/{{ package }} for {{ plugin }}.

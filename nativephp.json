@@ -1,0 +1,30 @@
+{
+    "namespace": "{{ plugin }}",
+    "bridge_functions": [
+        {
+            "name": "{{ plugin }}.Example",
+            "android": "com.{{ vendor }}.{{ package }}.{{ plugin }}Functions.Example",
+            "ios": "{{ plugin }}Functions.Example",
+            "description": "{{ description }}"
+        }
+    ],
+    "android": {
+        "min_version": 26,
+        "permissions": [],
+        "dependencies": {
+            "implementation": []
+        },
+        "features": []
+    },
+    "ios": {
+        "min_version": "18.2",
+        "info_plist": {},
+        "dependencies": {
+            "swift_packages": [],
+            "pods": []
+        }
+    },
+    "events": [
+        "{{ namespace }}\\Events\\{{ plugin }}Event"
+    ]
+}

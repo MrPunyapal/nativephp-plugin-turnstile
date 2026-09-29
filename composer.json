@@ -1,0 +1,75 @@
+{
+    "name": "{{ vendor }}/{{ package }}",
+    "description": "{{ description }}",
+    "type": "nativephp-plugin",
+    "license": "MIT",
+    "keywords": [
+        "nativephp",
+        "nativephp-mobile",
+        "nativephp-plugin",
+        "{{ plugin }}",
+        "{{ package }}"
+    ],
+    "homepage": "https://github.com/{{ vendor }}/{{ package }}",
+    "support": {
+        "issues": "https://github.com/{{ vendor }}/{{ package }}/issues",
+        "source": "https://github.com/{{ vendor }}/{{ package }}"
+    },
+    "require": {
+        "php": "^8.2",
+        "illuminate/contracts": "^11.0|^12.0",
+        "illuminate/support": "^11.0|^12.0",
+        "nativephp/mobile": "^3.0|^4.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.0",
+        "laravel/pint": "^1.24",
+        "orchestra/testbench": "^9.0|^10.0",
+        "pestphp/pest": "^3.8",
+        "pestphp/pest-plugin-laravel": "^3.2",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "rector/rector": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "{{ namespace }}\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "{{ namespace }}\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "{{ namespace }}\\Providers\\{{ plugin }}ServiceProvider"
+            ],
+            "aliases": {
+                "{{ plugin }}": "{{ namespace }}\\Facades\\{{ plugin }}"
+            }
+        },
+        "nativephp": {
+            "manifest": "nativephp.json"
+        }
+    },
+    "scripts": {
+        "configure": "@php configure.php",
+        "test": "pest",
+        "test:coverage": "pest --coverage",
+        "lint": "composer validate --strict && pint --test && phpstan analyse && rector process --dry-run",
+        "format": "pint",
+        "analyse": "phpstan analyse",
+        "rector": "rector process",
+        "rector:test": "rector process --dry-run"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        },
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: NativePHP documentation
+    url: https://nativephp.com/docs/mobile
+    about: Read official NativePHP Mobile documentation before filing framework-level issues.

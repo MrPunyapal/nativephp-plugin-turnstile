@@ -1,0 +1,18 @@
+package com.{{ vendor }}.{{ package }}
+
+import com.nativephp.mobile.bridge.BridgeFunction
+import org.json.JSONObject
+
+class {{ plugin }}Functions {
+    class {{ function }} : BridgeFunction() {
+        override fun execute(payload: JSONObject): JSONObject {
+            val response = JSONObject()
+
+            response.put("plugin", "{{ plugin }}")
+            response.put("function", "{{ plugin }}.{{ function }}")
+            response.put("received", payload)
+
+            return response
+        }
+    }
+}

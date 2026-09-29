@@ -1,0 +1,23 @@
+{
+    "preset": "laravel",
+    "exclude": [
+        "android",
+        "ios",
+        "resources",
+        "stubs"
+    ],
+    "notPath": [
+        "vendor"
+    ],
+    "rules": {
+        "declare_strict_types": true,
+        "final_class": true,
+        "ordered_imports": {
+            "sort_algorithm": "alpha"
+        },
+        "phpdoc_align": {
+            "align": "left"
+        }
+    },
+    "template": "{{ vendor }}/{{ package }}: {{ plugin }}"
+}
