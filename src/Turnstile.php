@@ -68,6 +68,16 @@ final class Turnstile implements TurnstileContract
             throw new TurnstileException('Turnstile returned an invalid response.', previous: $e);
         }
 
-        return TurnstileResponse::fromArray($payload);
+        $result = TurnstileResponse::fromArray($payload);
+
+        if ($result->success && $expectedAction !== null && $result->action !== $expectedAction) {
+            return TurnstileResponse::failure(['action-mismatch']);
+        }
+
+        if ($result->success && $expectedHostname !== null && $result->hostname !== $expectedHostname) {
+            return TurnstileResponse::failure(['hostname-mismatch']);
+        }
+
+        return $result;
     }
 }
