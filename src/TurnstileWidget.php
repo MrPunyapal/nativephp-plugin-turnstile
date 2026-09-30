@@ -6,6 +6,7 @@ namespace MrPunyapal\Turnstile;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use InvalidArgumentException;
+use JsonException;
 
 final class TurnstileWidget
 {
@@ -14,18 +15,12 @@ final class TurnstileWidget
     ) {
     }
 
-    /**
-     * Build a self-contained HTML document for a NativePHP WebView.
-     *
-     * The document stores the latest token in a DOM event so the host page can
-     * forward it to its Laravel API endpoint.
-     *
-     * @param array<string, scalar|null> $options
-     */
+    /** @param array{sitekey?: string, action?: string|null, cdata?: string|null, theme?: string} $options */
     public function html(array $options = []): string
     {
         $siteKey = (string) ($options['sitekey'] ?? $this->config->get('turnstile.site_key', ''));
         $action = $options['action'] ?? null;
+        $cdata = $options['cdata'] ?? null;
         $theme = $options['theme'] ?? 'auto';
 
         if ($siteKey === '') {
@@ -36,20 +31,21 @@ final class TurnstileWidget
             throw new InvalidArgumentException('The Turnstile theme must be auto, light, or dark.');
         }
 
-        $config = [
-            'sitekey' => $siteKey,
-            'action' => $action,
-            'theme' => $theme,
-        ];
-
-        $json = json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR);
+        try {
+            $json = json_encode(
+                ['sitekey' => $siteKey, 'theme' => $theme, 'action' => $action, 'cdata' => $cdata],
+                JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR,
+            );
+        } catch (JsonException $e) {
+            throw new InvalidArgumentException('The Turnstile widget options could not be encoded.', previous: $e);
+        }
 
         return <<<HTML
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <style>
         html, body { margin: 0; padding: 0; background: transparent; }
         body { min-height: 70px; display: flex; align-items: center; justify-content: center; }
@@ -60,32 +56,21 @@ final class TurnstileWidget
     <script>
         (() => {
             const options = {$json};
-            const emit = (event, detail = {}) => {
-                window.dispatchEvent(new CustomEvent('turnstile:' + event, { detail }));
-            };
-
             let widgetId = null;
 
-            window.addEventListener('turnstile:reset', () => {
-                if (widgetId !== null && window.turnstile) {
-                    window.turnstile.reset(widgetId);
+            window.turnstileWidget = {
+                getResponse() {
+                    return widgetId === null ? null : window.turnstile?.getResponse(widgetId) ?? null;
+                },
+                reset() {
+                    if (widgetId !== null && window.turnstile) {
+                        window.turnstile.reset(widgetId);
+                    }
                 }
-            });
-
-            window.turnstileReady = new Promise((resolve) => {
-                window.turnstileReadyResolve = resolve;
-            });
-
-            window.turnstileCallback = (token) => {
-                emit('success', { token });
             };
 
-            window.turnstileExpired = () => {
-                emit('expired');
-            };
-
-            window.turnstileError = (code) => {
-                emit('error', { code });
+            const emit = (name, detail = {}) => {
+                window.dispatchEvent(new CustomEvent('turnstile:' + name, { detail }));
             };
 
             const render = () => {
@@ -93,11 +78,21 @@ final class TurnstileWidget
                     sitekey: options.sitekey,
                     theme: options.theme,
                     ...(options.action ? { action: options.action } : {}),
-                    callback: window.turnstileCallback,
-                    'expired-callback': window.turnstileExpired,
-                    'error-callback': window.turnstileError,
+                    ...(options.cdata ? { cData: options.cdata } : {}),
+                    callback(token) {
+                        emit('success', { token });
+                    },
+                    'expired-callback'() {
+                        emit('expired');
+                    },
+                    'error-callback'(code) {
+                        emit('error', { code });
+                    },
+                    'timeout-callback'() {
+                        emit('timeout');
+                    }
                 });
-                window.turnstileReadyResolve(widgetId);
+
                 emit('ready', { widgetId });
             };
 

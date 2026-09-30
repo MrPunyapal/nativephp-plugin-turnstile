@@ -33,18 +33,20 @@ final class Turnstile implements TurnstileContract
 
     public function verify(string $token, ?string $remoteIp = null): TurnstileResponse
     {
+        $token = trim($token);
+
         if ($token === '') {
             throw new TurnstileException('A Turnstile token is required.');
+        }
+
+        if (strlen($token) > 2048) {
+            throw new TurnstileException('The Turnstile token exceeds the 2048 character limit.');
         }
 
         $secret = (string) $this->config->get('turnstile.secret_key', '');
 
         if ($secret === '') {
             throw new TurnstileException('The Turnstile secret key is not configured.');
-        }
-
-        if (strlen($token) > 2048) {
-            throw new TurnstileException('The Turnstile token exceeds the 2048 character limit.');
         }
 
         $data = [

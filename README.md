@@ -1,8 +1,6 @@
 # NativePHP Turnstile
 
-Cloudflare Turnstile integration for Laravel and NativePHP Mobile.
-
-Turnstile runs in a browser environment. In NativePHP Mobile, use a WebView for the widget and send the resulting token to your Laravel backend. The backend must validate that token with Cloudflare's Siteverify API before allowing the protected action.
+Cloudflare Turnstile integration for Laravel backends used by NativePHP Mobile apps.
 
 ## Installation
 
@@ -10,15 +8,7 @@ Turnstile runs in a browser environment. In NativePHP Mobile, use a WebView for 
 composer require mrpunyapal/nativephp-plugin-turnstile
 ```
 
-The package is auto-discovered by Laravel.
-
-Publish the config when you need to override the defaults:
-
-```bash
-php artisan vendor:publish --tag=turnstile-config
-```
-
-Set your keys:
+Set the Cloudflare keys in your Laravel backend:
 
 ```dotenv
 TURNSTILE_SITE_KEY=your-site-key
@@ -26,11 +16,33 @@ TURNSTILE_SECRET_KEY=your-secret-key
 TURNSTILE_TIMEOUT=10
 ```
 
-The site key is safe for the client. Never ship the secret key in the mobile application.
+Never put `TURNSTILE_SECRET_KEY` in the mobile app.
 
-## Laravel API verification
+## NativePHP v3 and v4
 
-A typical API endpoint receives the token from the NativePHP app and verifies it before doing the protected work:
+Turnstile is a browser widget, not a native mobile SDK. Both NativePHP Mobile v3 and v4 can use it through a WebView.
+
+For v3, render Turnstile in the normal Blade/Livewire page displayed by the app.
+
+For v4, SuperNative is the default application architecture, but the WebView component is still available. Put the Turnstile widget in the WebView portion of the screen.
+
+The widget helper generates a self-contained HTML document:
+
+```php
+use MrPunyapal\Turnstile\TurnstileWidget;
+
+$html = app(TurnstileWidget::class)->html([
+    'action' => 'signup',
+]);
+```
+
+Load that HTML in a NativePHP WebView with JavaScript and DOM storage enabled. The document loads Cloudflare's Turnstile script from `challenges.cloudflare.com`.
+
+On success the document emits a `turnstile:success` browser event containing the token. Expired, error, and timeout events are emitted as well. Generate the token immediately before the protected request.
+
+## Laravel API example
+
+The mobile app should send the token to your Laravel API, not the Cloudflare secret:
 
 ```php
 use Illuminate\Http\Request;
@@ -40,7 +52,7 @@ public function store(Request $request)
 {
     $data = $request->validate([
         'turnstile_token' => ['required', 'string', 'max:2048'],
-        // other request fields...
+        'name' => ['required', 'string'],
     ]);
 
     $result = Turnstile::verify(
@@ -50,82 +62,33 @@ public function store(Request $request)
 
     abort_unless(
         $result->isValidFor(
-            hostname: config('turnstile.hostname'),
             action: 'signup',
         ),
         422,
         'Turnstile verification failed.',
     );
 
-    // Continue with the protected action...
+    // Protected operation...
 }
 ```
 
-The `hostname` check is optional for mobile flows where you intentionally do not use a hostname-specific policy. The `action` check is useful when the same widget/site key is used for several protected actions.
+Cloudflare's response includes the result, challenge timestamp, hostname, action, custom data, and error codes. Failed verification responses are returned normally so the API can decide how to respond. Network failures and invalid configuration/input throw `TurnstileException`.
 
-A failed Siteverify response is returned as `TurnstileResponse`; network errors, malformed Cloudflare responses, missing configuration, and invalid input throw `TurnstileException`.
+## Security
 
-## NativePHP Mobile
+A successful browser callback is not proof that the request is valid. The Laravel backend must call Cloudflare Siteverify.
 
-Cloudflare's mobile guidance requires a browser environment for Turnstile. Native applications should embed the widget in a WebView with JavaScript and DOM storage enabled and allow access to `challenges.cloudflare.com`.
+Turnstile tokens are short-lived and single-use. Do not store them for later requests. A `timeout-or-duplicate` response means the client should obtain a fresh token.
 
-### NativePHP Mobile v3
-
-NativePHP v3 uses a web-view-first application model, so place Turnstile in the normal Blade/Livewire page rendered by the app.
-
-### NativePHP Mobile v4
-
-NativePHP v4 defaults to SuperNative, but the WebView component remains supported. Use a WebView for the Turnstile portion of your native screen or use the classic full-screen WebView architecture.
-
-### Example widget
-
-Explicit rendering is a good fit for mobile because you can request a fresh token immediately before the API call:
-
-```html
-<div id="turnstile"></div>
-
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"></script>
-<script>
-    let widgetId;
-
-    turnstile.ready(() => {
-        widgetId = turnstile.render('#turnstile', {
-            sitekey: @js(config('turnstile.site_key')),
-            action: 'signup',
-            callback(token) {
-                window.turnstileToken = token;
-            },
-            'expired-callback'() {
-                window.turnstileToken = null;
-            },
-            'error-callback'() {
-                window.turnstileToken = null;
-            },
-        });
-    });
-</script>
-```
-
-Send `window.turnstileToken` to your Laravel API over your normal authenticated request.
-
-Do not trust the client-side callback as proof that the request is allowed. The backend must call Siteverify.
-
-## Token lifecycle
-
-Turnstile tokens are short-lived and single-use. Generate the token as close as possible to the protected API request and do not cache or persist tokens for later use. If Cloudflare returns `timeout-or-duplicate`, generate a fresh token and retry the protected action.
+For mobile authentication or account creation, keep your normal API authentication, authorization, rate limiting, and server-side validation in place. Turnstile is an additional bot check, not a replacement for those controls.
 
 ## Testing
 
-Cloudflare provides testing sitekeys and secret keys so you can exercise success and failure cases without a real challenge.
-
-Run the package test suite with:
+Run:
 
 ```bash
 composer test
-```
-
-Run the full checks with:
-
-```bash
 composer lint
 ```
+
+Cloudflare provides test keys for CI and local automated testing.

@@ -18,11 +18,6 @@ final readonly class TurnstileResponse
     }
 
     /** @param array<string, mixed> $payload */
-    public static function failure(array $errorCodes): self
-    {
-        return new self(false, errorCodes: $errorCodes);
-    }
-
     public static function fromArray(array $payload): self
     {
         $errors = $payload['error-codes'] ?? [];

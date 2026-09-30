@@ -3,12 +3,7 @@
     "description": "Cloudflare Turnstile integration for Laravel and NativePHP Mobile.",
     "type": "library",
     "license": "MIT",
-    "keywords": [
-        "cloudflare",
-        "laravel",
-        "nativephp",
-        "turnstile"
-    ],
+    "keywords": ["cloudflare", "laravel", "nativephp", "turnstile"],
     "require": {
         "php": "^8.2",
         "guzzlehttp/guzzle": "^7.0",
@@ -36,9 +31,7 @@
     },
     "extra": {
         "laravel": {
-            "providers": [
-                "MrPunyapal\\Turnstile\\TurnstileServiceProvider"
-            ]
+            "providers": ["MrPunyapal\\Turnstile\\TurnstileServiceProvider"]
         }
     },
     "scripts": {
@@ -50,9 +43,7 @@
         "rector:test": "rector process --dry-run"
     },
     "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        },
+        "allow-plugins": {"pestphp/pest-plugin": true},
         "sort-packages": true
     },
     "minimum-stability": "stable",

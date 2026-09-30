@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace MrPunyapal\Turnstile\Tests;
+
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
 use Mockery;
@@ -82,7 +84,7 @@ it('rejects a missing secret key', function (): void {
     expect(fn () => Turnstile::verify('token'))->toThrow(TurnstileException::class);
 });
 
-it('builds a WebView document with the site key and action', function (): void {
+it('builds a WebView document with the configured site key and action', function (): void {
     config()->set('turnstile.site_key', 'site-key');
 
     $html = app(TurnstileWidget::class)->html([
