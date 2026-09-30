@@ -1,22 +1,19 @@
 {
     "name": "mrpunyapal/nativephp-plugin-turnstile",
-    "description": "Cloudflare Turnstile integration for NativePHP Mobile and Laravel.",
-    "type": "nativephp-plugin",
+    "description": "Cloudflare Turnstile integration for Laravel and NativePHP Mobile.",
+    "type": "library",
     "license": "MIT",
     "keywords": [
-        "nativephp",
-        "nativephp-mobile",
-        "laravel",
-        "turnstile",
         "cloudflare",
-        "captcha",
-        "bot-protection"
+        "laravel",
+        "nativephp",
+        "turnstile"
     ],
     "require": {
         "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.0",
         "illuminate/contracts": "^11.0|^12.0",
-        "illuminate/support": "^11.0|^12.0",
-        "guzzlehttp/guzzle": "^7.0"
+        "illuminate/support": "^11.0|^12.0"
     },
     "require-dev": {
         "laravel/pint": "^1.24",
