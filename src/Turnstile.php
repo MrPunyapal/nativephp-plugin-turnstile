@@ -26,6 +26,11 @@ final class Turnstile implements TurnstileContract
         return (string) $this->config->get('turnstile.site_key', '');
     }
 
+    public function endpoint(): string
+    {
+        return self::ENDPOINT;
+    }
+
     public function verify(string $token, ?string $remoteIp = null): TurnstileResponse
     {
         if ($token === '') {
