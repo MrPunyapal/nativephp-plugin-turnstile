@@ -2,22 +2,17 @@
 
 declare(strict_types=1);
 
-namespace {{ namespace }}\Tests;
+namespace MrPunyapal\Turnstile\Tests;
 
 use Orchestra\Testbench\TestCase as Orchestra;
-use {{ namespace }}\Providers\{{ plugin }}ServiceProvider;
+use MrPunyapal\Turnstile\TurnstileServiceProvider;
 
 abstract class TestCase extends Orchestra
 {
-    /**
-     * @param \Illuminate\Foundation\Application $app
-     *
-     * @return list<class-string>
-     */
     protected function getPackageProviders($app): array
     {
         return [
-            {{ plugin }}ServiceProvider::class,
+            TurnstileServiceProvider::class,
         ];
     }
 }

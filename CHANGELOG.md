@@ -1,15 +1,13 @@
 # Changelog
 
-All notable changes to `{{ vendor }}/{{ package }}` will be documented in this file.
+All notable changes to `mrpunyapal/nativephp-plugin-turnstile` are documented here.
 
-The format is based on Keep a Changelog and this project follows semantic versioning.
+The format follows Keep a Changelog and semantic versioning.
 
 ## [Unreleased]
 
 ### Added
 
-- Initial NativePHP Mobile v3 and v4 plugin template structure.
-- PHP service provider, facade, contract, event, and manifest support.
-- Android and iOS bridge starter implementations.
-- Stubs for future scaffolding automation.
-- Pest, Pint, Rector, PHPStan, and GitHub workflow configuration.
+- Cloudflare Turnstile Siteverify client.
+- Laravel facade, contract, configuration, and typed response object.
+- NativePHP Mobile WebView helper for rendering the Turnstile widget.

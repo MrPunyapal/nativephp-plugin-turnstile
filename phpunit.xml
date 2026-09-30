@@ -5,7 +5,7 @@
          colors="true"
          cacheDirectory=".phpunit.cache">
     <testsuites>
-        <testsuite name="{{ vendor }}/{{ package }}">
+        <testsuite name="mrpunyapal/nativephp-plugin-turnstile">
             <directory suffix="Test.php">tests</directory>
         </testsuite>
     </testsuites>
@@ -16,7 +16,6 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="APP_KEY" value="base64:{{ plugin }}TemplateTestingKey000000000000000="/>
-        <env name="{{ plugin }}_PLUGIN_TEMPLATE" value="{{ vendor }}/{{ package }}"/>
+        <env name="APP_KEY" value="base64:TurnstileTestingKey000000000000000000000="/>
     </php>
 </phpunit>
