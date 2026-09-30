@@ -1,28 +1,16 @@
 {
-    "name": "{{ vendor }}/{{ package }}",
-    "description": "{{ description }}",
-    "type": "nativephp-plugin",
+    "name": "mrpunyapal/nativephp-plugin-turnstile",
+    "description": "Cloudflare Turnstile integration for Laravel and NativePHP Mobile.",
+    "type": "library",
     "license": "MIT",
-    "keywords": [
-        "nativephp",
-        "nativephp-mobile",
-        "nativephp-plugin",
-        "{{ plugin }}",
-        "{{ package }}"
-    ],
-    "homepage": "https://github.com/{{ vendor }}/{{ package }}",
-    "support": {
-        "issues": "https://github.com/{{ vendor }}/{{ package }}/issues",
-        "source": "https://github.com/{{ vendor }}/{{ package }}"
-    },
+    "keywords": ["cloudflare", "laravel", "nativephp", "turnstile"],
     "require": {
         "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.0",
         "illuminate/contracts": "^11.0|^12.0",
-        "illuminate/support": "^11.0|^12.0",
-        "nativephp/mobile": "^3.0|^4.0"
+        "illuminate/support": "^11.0|^12.0"
     },
     "require-dev": {
-        "larastan/larastan": "^3.0",
         "laravel/pint": "^1.24",
         "orchestra/testbench": "^9.0|^10.0",
         "pestphp/pest": "^3.8",
@@ -33,31 +21,21 @@
     },
     "autoload": {
         "psr-4": {
-            "{{ namespace }}\\": "src/"
+            "MrPunyapal\\Turnstile\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "{{ namespace }}\\Tests\\": "tests/"
+            "MrPunyapal\\Turnstile\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
-            "providers": [
-                "{{ namespace }}\\Providers\\{{ plugin }}ServiceProvider"
-            ],
-            "aliases": {
-                "{{ plugin }}": "{{ namespace }}\\Facades\\{{ plugin }}"
-            }
-        },
-        "nativephp": {
-            "manifest": "nativephp.json"
+            "providers": ["MrPunyapal\\Turnstile\\TurnstileServiceProvider"]
         }
     },
     "scripts": {
-        "configure": "@php configure.php",
         "test": "pest",
-        "test:coverage": "pest --coverage",
         "lint": "composer validate --strict && pint --test && phpstan analyse && rector process --dry-run",
         "format": "pint",
         "analyse": "phpstan analyse",
@@ -65,9 +43,7 @@
         "rector:test": "rector process --dry-run"
     },
     "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        },
+        "allow-plugins": {"pestphp/pest-plugin": true},
         "sort-packages": true
     },
     "minimum-stability": "stable",
