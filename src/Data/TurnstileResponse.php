@@ -46,4 +46,27 @@ final readonly class TurnstileResponse
     {
         return in_array($code, $this->errorCodes, true);
     }
+
+    public function hasHostname(string $hostname): bool
+    {
+        return $this->hostname === $hostname;
+    }
+
+    public function hasAction(string $action): bool
+    {
+        return $this->action === $action;
+    }
+
+    public function isValidFor(?string $hostname = null, ?string $action = null): bool
+    {
+        if (! $this->success) {
+            return false;
+        }
+
+        if ($hostname !== null && ! $this->hasHostname($hostname)) {
+            return false;
+        }
+
+        return $action === null || $this->hasAction($action);
+    }
 }
