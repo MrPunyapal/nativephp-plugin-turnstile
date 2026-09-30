@@ -26,13 +26,7 @@ final class Turnstile implements TurnstileContract
         return (string) $this->config->get('turnstile.site_key', '');
     }
 
-    public function verify(
-        string $token,
-        ?string $remoteIp = null,
-        ?string $idempotencyKey = null,
-        ?string $expectedAction = null,
-        ?string $expectedHostname = null,
-    ): TurnstileResponse
+    public function verify(string $token, ?string $remoteIp = null): TurnstileResponse
     {
         if ($token === '') {
             throw new TurnstileException('A Turnstile token is required.');
@@ -44,14 +38,17 @@ final class Turnstile implements TurnstileContract
             throw new TurnstileException('The Turnstile secret key is not configured.');
         }
 
-        $data = ['secret' => $secret, 'response' => $token];
+        if (strlen($token) > 2048) {
+            throw new TurnstileException('The Turnstile token exceeds the 2048 character limit.');
+        }
+
+        $data = [
+            'secret' => $secret,
+            'response' => $token,
+        ];
 
         if ($remoteIp !== null && $remoteIp !== '') {
             $data['remoteip'] = $remoteIp;
-        }
-
-        if ($idempotencyKey !== null && $idempotencyKey !== '') {
-            $data['idempotency_key'] = $idempotencyKey;
         }
 
         try {
@@ -74,16 +71,6 @@ final class Turnstile implements TurnstileContract
             throw new TurnstileException('Turnstile returned an invalid response.', previous: $e);
         }
 
-        $result = TurnstileResponse::fromArray($payload);
-
-        if ($result->success && $expectedAction !== null && $result->action !== $expectedAction) {
-            return TurnstileResponse::failure(['action-mismatch']);
-        }
-
-        if ($result->success && $expectedHostname !== null && $result->hostname !== $expectedHostname) {
-            return TurnstileResponse::failure(['hostname-mismatch']);
-        }
-
-        return $result;
+        return TurnstileResponse::fromArray($payload);
     }
 }
