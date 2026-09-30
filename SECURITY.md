@@ -2,14 +2,14 @@
 
 ## Supported Versions
 
-Security updates are provided for supported stable releases of `{{ vendor }}/{{ package }}`.
+Security fixes are provided for supported stable releases.
 
 | Version | Supported |
 | --- | --- |
-| `1.x` | Yes |
+| `0.x` | Yes |
 
-## Reporting A Vulnerability
+## Reporting a Vulnerability
 
-Please report security issues privately to the maintainers of `{{ vendor }}/{{ package }}`.
+Please report security issues privately to the repository maintainer.
 
-Do not open a public issue for vulnerabilities.
+Do not open a public issue for a vulnerability.
