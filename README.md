@@ -1,124 +1,94 @@
-# NativePHP Mobile Plugin Template
+# NativePHP Turnstile
 
-`{{ vendor }}/{{ package }}` is a reusable, production-oriented starter kit for building NativePHP Mobile v3 and v4 plugins.
-
-This repository is not a demo plugin and not a sample app. It is a template that can be cloned, renamed, and published as a real NativePHP plugin after replacing placeholders.
-
-## Placeholders
-
-Replace every placeholder before publishing:
-
-| Placeholder | Replace with |
-| --- | --- |
-| `{{ vendor }}` | Composer vendor and GitHub owner, for example `acme`. |
-| `{{ package }}` | Composer package name, for example `mobile-battery`. Use a platform-safe value in Kotlin package paths. |
-| `{{ plugin }}` | Public plugin name, facade name, and bridge namespace, for example `Battery`. |
-| `{{ namespace }}` | PHP namespace, for example `Acme\\MobileBattery`. |
-| `{{ description }}` | Short package description. |
-
-## NativePHP Mobile v3 and v4\n\nThe template supports `nativephp/mobile` v3 and v4. The manifest format and bridge source layout are shared by the versions supported here.\n\nKeep the generated package dependency as `^3.0|^4.0` unless the plugin intentionally targets a single NativePHP Mobile version.\n\n## How NativePHP Plugins Work
-
-NativePHP Mobile plugins are Composer packages with `type: nativephp-plugin`.
-
-The package ships:
-
-- PHP classes in `src/` for Laravel-style service provider, facade, contracts, events, and support code.
-- A `nativephp.json` manifest that tells NativePHP which native bridge functions exist.
-- Android source in `resources/android`.
-- iOS source in `resources/ios`.
-
-## Bridge Architecture
-
-The included bridge flow is:
-
-```text
-PHP facade
-  -> {{ namespace }}\Plugin::example()
-  -> NativePHP bridge function "{{ plugin }}.Example"
-  -> Kotlin com.{{ vendor }}.{{ package }}.{{ plugin }}Functions.Example
-  -> Android API or platform logic
-  -> JSON response returned to PHP
-```
-
-```text
-PHP facade
-  -> {{ namespace }}\Plugin::example()
-  -> NativePHP bridge function "{{ plugin }}.Example"
-  -> Swift {{ plugin }}Functions.Example
-  -> iOS API or platform logic
-  -> dictionary response returned to PHP
-```
-
-## Folder Structure
-
-```text
-src/                 PHP package layer
-resources/android/   Kotlin bridge implementation copied into Android builds
-resources/ios/       Swift bridge implementation copied into iOS builds
-android/             Android module starter and packaging notes
-ios/                 iOS module starter and packaging notes
-stubs/               Files for future scaffolding automation
-tests/               Pest tests for PHP and manifest behavior
-docs/                Maintainer and user documentation
-.github/             Issue templates, workflows, release automation
-```
+Cloudflare Turnstile integration for Laravel backends used by NativePHP Mobile apps.
 
 ## Installation
 
-After replacing placeholders and publishing the package:
-
 ```bash
-composer require {{ vendor }}/{{ package }}
+composer require mrpunyapal/nativephp-plugin-turnstile
 ```
 
-Laravel auto-discovery registers `{{ namespace }}\Providers\{{ plugin }}ServiceProvider`.
+Set the Cloudflare keys in your Laravel backend:
 
-## Creating Your First Plugin
-
-1. Clone this repository.
-2. Run `php configure.php`.
-3. Review the generated package names, namespaces, and bridge targets.
-4. Replace the template bridge implementation with the platform APIs your plugin needs.
-5. Run the test and lint commands.
-
-For automation or CI, the script also accepts options:
-
-```bash
-php configure.php --no-interaction --vendor=acme --package=mobile-battery --plugin=Battery --namespace="Acme\\MobileBattery" --description="NativePHP Mobile battery plugin." --android-package=mobilebattery
+```dotenv
+TURNSTILE_SITE_KEY=your-site-key
+TURNSTILE_SECRET_KEY=your-secret-key
+TURNSTILE_TIMEOUT=10
 ```
 
-## Publishing
+Never put `TURNSTILE_SECRET_KEY` in the mobile app.
 
-Publish to GitHub as `{{ vendor }}/{{ package }}`, then submit the package to Packagist.
+## NativePHP v3 and v4
 
-The package type must remain:
+Turnstile is a browser widget, not a native mobile SDK. Both NativePHP Mobile v3 and v4 can use it through a WebView.
 
-```json
-"type": "nativephp-plugin"
+For v3, render Turnstile in the normal Blade/Livewire page displayed by the app.
+
+For v4, SuperNative is the default application architecture, but the WebView component is still available. Put the Turnstile widget in the WebView portion of the screen.
+
+The widget helper generates a self-contained HTML document:
+
+```php
+use MrPunyapal\Turnstile\TurnstileWidget;
+
+$html = app(TurnstileWidget::class)->html([
+    'action' => 'signup',
+]);
 ```
 
-## Releasing
+Load that HTML in a NativePHP WebView with JavaScript and DOM storage enabled. The document loads Cloudflare's Turnstile script from `challenges.cloudflare.com`.
 
-Use semantic versioning. Tags should use `vMAJOR.MINOR.PATCH`, for example `v1.0.0`.
+On success the document emits a `turnstile:success` browser event containing the token. Expired, error, and timeout events are emitted as well. Generate the token immediately before the protected request.
 
-Run before each release:
+## Laravel API example
+
+The mobile app should send the token to your Laravel API, not the Cloudflare secret:
+
+```php
+use Illuminate\Http\Request;
+use MrPunyapal\Turnstile\Facades\Turnstile;
+
+public function store(Request $request)
+{
+    $data = $request->validate([
+        'turnstile_token' => ['required', 'string', 'max:2048'],
+        'name' => ['required', 'string'],
+    ]);
+
+    $result = Turnstile::verify(
+        $data['turnstile_token'],
+        $request->ip(),
+    );
+
+    abort_unless(
+        $result->isValidFor(
+            action: 'signup',
+        ),
+        422,
+        'Turnstile verification failed.',
+    );
+
+    // Protected operation...
+}
+```
+
+Cloudflare's response includes the result, challenge timestamp, hostname, action, custom data, and error codes. Failed verification responses are returned normally so the API can decide how to respond. Network failures and invalid configuration/input throw `TurnstileException`.
+
+## Security
+
+A successful browser callback is not proof that the request is valid. The Laravel backend must call Cloudflare Siteverify.
+
+Turnstile tokens are short-lived and single-use. Do not store them for later requests. A `timeout-or-duplicate` response means the client should obtain a fresh token.
+
+For mobile authentication or account creation, keep your normal API authentication, authorization, rate limiting, and server-side validation in place. Turnstile is an additional bot check, not a replacement for those controls.
+
+## Testing
+
+Run:
 
 ```bash
-composer validate --strict
 composer test
 composer lint
 ```
 
-## Future Automation
-
-The `stubs/` directory is designed for a future companion scaffolder such as `nativephp-plugin-maker`.
-
-Possible workflows:
-
-```bash
-composer create-project {{ vendor }}/nativephp-plugin-template my-plugin
-```
-
-```bash
-nativephp-plugin new Battery
-```
+Cloudflare provides test keys for CI and local automated testing.
