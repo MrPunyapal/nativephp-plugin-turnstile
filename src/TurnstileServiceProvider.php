@@ -6,6 +6,7 @@ namespace MrPunyapal\Turnstile;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use MrPunyapal\Turnstile\Contracts\TurnstileContract;
 
@@ -17,7 +18,7 @@ final class TurnstileServiceProvider extends ServiceProvider
 
         $this->app->singleton(ClientInterface::class, fn (): ClientInterface => new Client);
 
-        $this->app->singleton(TurnstileContract::class, fn ($app): Turnstile => new Turnstile(
+        $this->app->singleton(TurnstileContract::class, fn (Application $app): Turnstile => new Turnstile(
             $app['config'],
             $app->make(ClientInterface::class),
         ));
