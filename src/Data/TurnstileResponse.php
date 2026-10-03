@@ -14,8 +14,7 @@ final readonly class TurnstileResponse
         public ?string $action = null,
         public ?string $cdata = null,
         public array $errorCodes = [],
-    ) {
-    }
+    ) {}
 
     /** @param array<string, mixed> $payload */
     public static function fromArray(array $payload): self
@@ -28,7 +27,7 @@ final readonly class TurnstileResponse
             hostname: is_string($payload['hostname'] ?? null) ? $payload['hostname'] : null,
             action: is_string($payload['action'] ?? null) ? $payload['action'] : null,
             cdata: is_string($payload['cdata'] ?? null) ? $payload['cdata'] : null,
-            errorCodes: is_array($errors) ? array_values(array_filter($errors, 'is_string')) : [],
+            errorCodes: is_array($errors) ? array_values(array_filter($errors, is_string(...))) : [],
         );
     }
 

@@ -11,15 +11,14 @@ use MrPunyapal\Turnstile\Contracts\TurnstileContract;
 use MrPunyapal\Turnstile\Data\TurnstileResponse;
 use MrPunyapal\Turnstile\Exceptions\TurnstileException;
 
-final class Turnstile implements TurnstileContract
+final readonly class Turnstile implements TurnstileContract
 {
     private const ENDPOINT = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
     public function __construct(
-        private readonly ConfigRepository $config,
-        private readonly ClientInterface $client,
-    ) {
-    }
+        private ConfigRepository $config,
+        private ClientInterface $client,
+    ) {}
 
     public function siteKey(): string
     {
@@ -64,7 +63,7 @@ final class Turnstile implements TurnstileContract
                 'timeout' => (float) $this->config->get('turnstile.timeout', 10),
             ]);
         } catch (\Throwable $e) {
-            throw new TurnstileException('Turnstile verification request failed.', previous: $e);
+            throw new TurnstileException('Turnstile verification request failed.', $e->getCode(), previous: $e);
         }
 
         try {
@@ -75,7 +74,7 @@ final class Turnstile implements TurnstileContract
                 flags: JSON_THROW_ON_ERROR,
             );
         } catch (JsonException $e) {
-            throw new TurnstileException('Turnstile returned an invalid response.', previous: $e);
+            throw new TurnstileException('Turnstile returned an invalid response.', $e->getCode(), previous: $e);
         }
 
         return TurnstileResponse::fromArray($payload);

@@ -33,12 +33,15 @@ use MrPunyapal\Turnstile\TurnstileWidget;
 
 $html = app(TurnstileWidget::class)->html([
     'action' => 'signup',
+    'size' => 'compact',
 ]);
 ```
 
-Load that HTML in a NativePHP WebView with JavaScript and DOM storage enabled. The document loads Cloudflare's Turnstile script from `challenges.cloudflare.com`.
+Serve this HTML from an HTTPS hostname allowed by your Turnstile widget, then load that URL in a NativePHP WebView with JavaScript and DOM storage enabled. A hosted URL gives the challenge a real origin; do not rely on an opaque inline HTML origin. The document loads Cloudflare's Turnstile script from `challenges.cloudflare.com`.
 
 On success the document emits a `turnstile:success` browser event containing the token. Expired, error, and timeout events are emitted as well. Generate the token immediately before the protected request.
+
+For native URL-navigation callbacks, also pass a unique `cdata` state and a `return_path` pointing to a same-origin result endpoint. The widget navigates there with `state` and `status` in the query and the token only in the URL fragment. Validate the origin, result path, and state in the app. The API must still validate the token, expected hostname, action, and custom data with Siteverify. Reset the challenge after every submission attempt.
 
 ## Laravel API example
 

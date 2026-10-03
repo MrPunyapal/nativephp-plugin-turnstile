@@ -6,6 +6,10 @@
 *.swift diff=swift
 
 /tests export-ignore
+/vendor export-ignore
+/composer.lock export-ignore
+/.pest.cache export-ignore
+/.rector.cache export-ignore
 /.github export-ignore
 /.phpstan export-ignore
 /.phpunit.cache export-ignore
