@@ -67,7 +67,6 @@ final readonly class Turnstile implements TurnstileContract
         }
 
         try {
-            /** @var array<string, mixed> $payload */
             $payload = json_decode(
                 (string) $response->getBody(),
                 true,
@@ -75,6 +74,10 @@ final readonly class Turnstile implements TurnstileContract
             );
         } catch (JsonException $e) {
             throw new TurnstileException('Turnstile returned an invalid response.', $e->getCode(), previous: $e);
+        }
+
+        if (! is_array($payload)) {
+            throw new TurnstileException('Turnstile returned an invalid response.');
         }
 
         return TurnstileResponse::fromArray($payload);

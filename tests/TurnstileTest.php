@@ -83,6 +83,16 @@ it('rejects an empty token', function (): void {
     expect(fn () => Turnstile::verify(''))->toThrow(TurnstileException::class);
 });
 
+it('rejects malformed and scalar verification responses', function (string $body): void {
+    $client = Mockery::mock(ClientInterface::class);
+    $client->expects('request')->once()->andReturn(new Response(200, [], $body));
+    app()->instance(ClientInterface::class, $client);
+    config()->set('turnstile.secret_key', 'secret-key');
+
+    expect(fn () => Turnstile::verify('token'))
+        ->toThrow(TurnstileException::class, 'Turnstile returned an invalid response.');
+})->with(['malformed' => 'not-json', 'null' => 'null', 'boolean' => 'true', 'string' => '"unexpected"']);
+
 it('rejects tokens longer than Cloudflare permits', function (): void {
     config()->set('turnstile.secret_key', 'secret-key');
 
