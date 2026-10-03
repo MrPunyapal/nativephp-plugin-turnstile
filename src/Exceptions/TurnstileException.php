@@ -6,6 +6,4 @@ namespace MrPunyapal\Turnstile\Exceptions;
 
 use RuntimeException;
 
-final class TurnstileException extends RuntimeException
-{
-}
+final class TurnstileException extends RuntimeException {}
