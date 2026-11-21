@@ -24,6 +24,10 @@ jobs:
             testbench: "^11.0"
             pest: "^5.0"
             pest-laravel: "^5.0"
+          - php: "8.6"
+            testbench: "^11.0"
+            pest: "^5.0"
+            pest-laravel: "^5.0"
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
